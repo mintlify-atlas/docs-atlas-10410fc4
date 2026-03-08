@@ -1,0 +1,314 @@
+---
+title: Adding New Games
+description: Learn how to add new games to the Version Counter dashboard
+icon: "gamepad"
+---
+
+This guide walks you through adding a new game to the Version Counter application. All game data is stored in a centralized JSON file and automatically rendered on the dashboard.
+
+## Overview
+
+Games are defined in `src/data/games.json` and automatically displayed on the home page using the `GameCard` component. Each game entry includes version information, countdown data, theming, and external links.
+
+## Data Structure
+
+Each game object in `games.json` contains the following properties:
+
+<Steps>
+  <Step title="Core Identification">
+    Define the basic game identification fields:
+
+    ```json
+    {
+      "slug": "genshin-impact",
+      "nombre": "Genshin Impact New Version Countdown",
+      "descripcion": "Optional description for SEO",
+      "href": "/genshin"
+    }
+    ```
+
+    - **slug**: Unique identifier (kebab-case)
+    - **nombre**: Display name shown on the card
+    - **descripcion**: Optional SEO description
+    - **href**: Route path for the game's detail page
+  </Step>
+
+  <Step title="Version Information">
+    Specify current and upcoming version details:
+
+    ```json
+    {
+      "version_actual": "6.4",
+      "proxima_version": "6.5",
+      "nombre_version_actual": "Homeward, He Who",
+      "slogan_name": "Caught the Wind",
+      "slogan_desc": "Varka is finally here"
+    }
+    ```
+
+    - **version_actual**: Current live version number
+    - **proxima_version**: Next scheduled version
+    - **nombre_version_actual**: Version name/title
+    - **slogan_name**: Secondary title (italicized on detail page)
+    - **slogan_desc**: Short promotional description
+  </Step>
+
+  <Step title="Countdown Configuration">
+    Set up the version countdown timing:
+
+    ```json
+    {
+      "fecha_inicio": "2026-02-24T01:30:00Z",
+      "duracion_dias": 42
+    }
+    ```
+
+    - **fecha_inicio**: Version start date in ISO 8601 format (UTC)
+    - **duracion_dias**: Version duration in days (typically 41-46 days)
+
+    <Warning>
+      The countdown automatically calculates the end date by adding `duracion_dias` to `fecha_inicio`. Ensure the timezone is UTC (`Z` suffix) for consistency across all regions.
+    </Warning>
+  </Step>
+
+  <Step title="Visual Customization">
+    Add theme colors and imagery:
+
+    ```json
+    {
+      "tema": "#4ade80",
+      "imagen": "https://example.com/banner.jpg"
+    }
+    ```
+
+    - **tema**: Primary theme color (hex format)
+    - **imagen**: Full URL to the banner/background image
+
+    <Tip>
+      Choose theme colors that complement the game's brand identity. These colors are used for accent elements, borders, and interactive states throughout the UI.
+    </Tip>
+  </Step>
+
+  <Step title="External Links">
+    Provide links to official patch notes:
+
+    ```json
+    {
+      "patch_notes": "https://genshin.hoyoverse.com/es/news/detail/162806",
+      "banner_phase_I": "Columbina and Ineffa"
+    }
+    ```
+
+    - **patch_notes**: URL to official version notes
+    - **banner_phase_I**: Optional featured banner information
+  </Step>
+</Steps>
+
+## Complete Example
+
+Here's a real example from the codebase showing Zenless Zone Zero:
+
+```json src/data/games.json
+{
+  "slug": "zenless-zone-zero",
+  "nombre": "Zenless Zone Zero New Version Countdown",
+  "descripcion": "Zenless Zone Zero 2.7 Countdown for all region like America, Europe, Asia. Zenless Banner Countdown, Patch Notes, and more.",
+  "version_actual": "2.6",
+  "proxima_version": "2.7",
+  "fecha_inicio": "2026-02-06T01:30:00Z",
+  "nombre_version_actual": "Encore for an",
+  "slogan_name": "Old Dream",
+  "slogan_desc": "Angels of Delusion are coming to New Eridu.",
+  "duracion_dias": 46,
+  "tema": "#facc15",
+  "imagen": "https://lblog.fp.guinfra.com/file/69807e0e09090c1b8b1bcdb0jfHWI04f03",
+  "href": "/zzz",
+  "patch_notes": "https://zenless.hoyoverse.com/es-es/news/162562"
+}
+```
+
+## Adding Your Game
+
+<Steps>
+  <Step title="Open the games data file">
+    Navigate to `src/data/games.json` in your project:
+
+    ```bash
+    cd src/data
+    nano games.json  # or use your preferred editor
+    ```
+  </Step>
+
+  <Step title="Add your game object">
+    Add a new game object to the `games` array. Make sure to:
+    - Place a comma after the previous game entry
+    - Follow the exact property names shown above
+    - Use proper JSON formatting (double quotes, no trailing commas)
+
+    ```json
+    {
+      "games": [
+        {
+          // ... existing games ...
+        },
+        {
+          "slug": "your-game",
+          "nombre": "Your Game New Version Countdown",
+          // ... add all required fields ...
+        }
+      ]
+    }
+    ```
+  </Step>
+
+  <Step title="Create a detail page (optional)">
+    If you want a dedicated detail page for your game, create a new Astro file:
+
+    ```astro src/pages/games/yourgame.astro
+    ---
+    import Layout from "../../layouts/Layout.astro";
+    import data from "../../data/games.json";
+    import { Counter } from "../../components/react/Counter";
+
+    const game = data.games.find((juego) => juego.slug === "your-game");
+    ---
+
+    <Layout
+      title={game?.nombre}
+      description="Your game description"
+    >
+      <!-- Use the genshin.astro file as a template -->
+    </Layout>
+    ```
+
+    <Note>
+      You can use `src/pages/games/genshin.astro` as a reference template for creating detail pages. The Counter component automatically handles countdown logic.
+    </Note>
+  </Step>
+
+  <Step title="Test locally">
+    Start the development server to verify your changes:
+
+    ```bash
+    npm run dev
+    ```
+
+    Navigate to `http://localhost:4321` to see your game card on the homepage.
+  </Step>
+</Steps>
+
+## How It Works
+
+The home page (`src/pages/index.astro`) automatically loads and displays all games:
+
+```astro src/pages/index.astro
+import GameCard from "../components/GameCard.astro";
+import data from "../data/games.json";
+
+const game = data.games;
+
+<section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  {
+    game.map((juego) => (
+      <GameCard
+        title={juego.nombre}
+        current={juego.version_actual}
+        upcoming={juego.proxima_version}
+        imagen={juego.imagen}
+        fecha_inicio={juego.fecha_inicio}
+        duracion_dias={juego.duracion_dias}
+        tema={juego.tema}
+        href={juego.href}
+      />
+    ))
+  }
+</section>
+```
+
+**No additional configuration is required** — adding a game to `games.json` automatically creates a card on the dashboard.
+
+## Game Card Features
+
+Each `GameCard` component (defined in `src/components/GameCard.astro`) includes:
+
+- **Background Image**: Full-screen banner with gradient overlay
+- **Version Badge**: Shows current version in the top-right corner
+- **Live Countdown**: Real-time counter showing days, hours, minutes, and seconds
+- **Hover Effects**: Scale animation and bottom border on hover
+- **Theme Colors**: Custom accent colors based on the `tema` property
+
+```astro src/components/GameCard.astro (excerpt)
+<a
+  href=`games${href}`
+  class="group relative overflow-hidden rounded-xl border"
+>
+  <div
+    class="absolute inset-0 bg-cover bg-center"
+    style=`background-image: linear-gradient(180deg, rgba(10, 10, 12, 0.2) 0%, rgba(10, 10, 12, 0.95) 100%), url(${imagen});`
+  >
+  </div>
+  <div class="absolute top-6 right-6 glass-panel">
+    <span style=`color: ${tema}`>Current: v{current}</span>
+  </div>
+  <!-- Counter and content -->
+</a>
+```
+
+## Best Practices
+
+<Accordion title="Image Selection">
+  - Use high-quality official artwork (minimum 1920x1080)
+  - Ensure images are hosted on reliable CDNs
+  - Verify images load quickly and are optimized for web
+  - Choose images with interesting composition that work with gradient overlays
+</Accordion>
+
+<Accordion title="Color Selection">
+  - Use brand-appropriate colors that match the game's identity
+  - Test colors for sufficient contrast against dark backgrounds
+  - Hex values should include the `#` prefix
+  - Consider accessibility (avoid very light colors on light backgrounds)
+</Accordion>
+
+<Accordion title="Date and Time Accuracy">
+  - Always use UTC timezone (`Z` suffix) in ISO 8601 format
+  - Double-check version start dates from official announcements
+  - Duration typically ranges from 41-46 days for most gacha games
+  - Update dates promptly when versions are delayed or extended
+</Accordion>
+
+<Accordion title="Naming Conventions">
+  - Use kebab-case for slugs: `genshin-impact`, not `genshinimpact` or `Genshin_Impact`
+  - Keep `nombre` concise but descriptive
+  - Use official version names when available
+  - Ensure `href` values start with `/` and match your route structure
+</Accordion>
+
+## Troubleshooting
+
+**Game card not appearing?**
+- Verify JSON syntax (use a validator like JSONLint)
+- Check for trailing commas (not allowed in JSON)
+- Ensure all required fields are present
+- Restart the dev server after changes
+
+**Countdown not working?**
+- Verify `fecha_inicio` is in ISO 8601 format with UTC timezone
+- Check that `duracion_dias` is a number, not a string
+- Open browser console to check for JavaScript errors
+
+**Image not loading?**
+- Verify the URL is publicly accessible
+- Check for CORS issues (most CDNs allow cross-origin requests)
+- Try accessing the image URL directly in your browser
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Customize Themes" icon="palette" href="/guides/customizing-themes">
+    Learn how to customize game themes and colors
+  </Card>
+  <Card title="GameCard Component" icon="square" href="/components/game-card">
+    Deep dive into the GameCard component API
+  </Card>
+</CardGroup>

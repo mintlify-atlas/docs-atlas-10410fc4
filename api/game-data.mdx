@@ -1,0 +1,232 @@
+---
+title: 'Game Data Structure'
+description: 'Reference for the games.json data structure used throughout Version Counter'
+icon: 'database'
+---
+
+## Overview
+
+The `games.json` file contains the core data for all game countdowns. It stores information about version releases, patch notes, visual themes, and timing for each supported game.
+
+## File Location
+
+```
+src/data/games.json
+```
+
+## Schema
+
+The root object contains a single `games` array with game objects.
+
+### Root Object
+
+<ResponseField name="games" type="Game[]" required>
+  Array of game objects containing version countdown data
+</ResponseField>
+
+### Game Object
+
+Each game object in the `games` array has the following structure:
+
+<Expandable title="Core Fields">
+  <ResponseField name="slug" type="string" required>
+    Unique identifier for the game (used in URLs)
+    
+    **Examples:** `"genshin-impact"`, `"wuthering-waves"`, `"honkai-star-rail"`, `"zenless-zone-zero"`
+  </ResponseField>
+
+  <ResponseField name="nombre" type="string" required>
+    Display name for the game countdown page
+    
+    **Example:** `"Genshin Impact New Version Countdown"`
+  </ResponseField>
+
+  <ResponseField name="descripcion" type="string">
+    Optional SEO description for the game page
+    
+    **Example:** `"Zenless Zone Zero 2.7 Countdown for all region like America, Europe, Asia. Zenless Banner Countdown, Patch Notes, and more."`
+  </ResponseField>
+
+  <ResponseField name="href" type="string" required>
+    Relative URL path for the game page
+    
+    **Examples:** `"/genshin"`, `"/wuwa"`, `"/hsr"`, `"/zzz"`
+  </ResponseField>
+</Expandable>
+
+<Expandable title="Version Information">
+  <ResponseField name="version_actual" type="string" required>
+    Current version number in semver format
+    
+    **Examples:** `"6.4"`, `"3.1"`, `"4.0"`, `"2.6"`
+  </ResponseField>
+
+  <ResponseField name="proxima_version" type="string" required>
+    Next version number in semver format
+    
+    **Examples:** `"6.5"`, `"3.2"`, `"4.1"`, `"2.7"`
+  </ResponseField>
+
+  <ResponseField name="nombre_version_actual" type="string" required>
+    First part of the version name/title
+    
+    **Example:** `"Homeward, He Who"`, `"For You Who"`
+  </ResponseField>
+
+  <ResponseField name="slogan_name" type="string" required>
+    Second part of the version name/title
+    
+    **Example:** `"Caught the Wind"`, `"Walk in Snow"`
+  </ResponseField>
+
+  <ResponseField name="slogan_desc" type="string" required>
+    Short description or tagline for the version
+    
+    **Example:** `"Varka is finally here"`, `"Get ready for new region Lahai-Roi."`
+  </ResponseField>
+</Expandable>
+
+<Expandable title="Timing Fields">
+  <ResponseField name="fecha_inicio" type="string" required>
+    ISO 8601 timestamp for version start date (in UTC)
+    
+    **Format:** `"YYYY-MM-DDTHH:mm:ssZ"`
+    
+    **Example:** `"2026-02-24T01:30:00Z"`
+  </ResponseField>
+
+  <ResponseField name="duracion_dias" type="number" required>
+    Duration of the version in days
+    
+    **Range:** Typically between 41-46 days
+    
+    **Example:** `42`
+  </ResponseField>
+</Expandable>
+
+<Expandable title="Visual & Content">
+  <ResponseField name="tema" type="string" required>
+    Hex color code for the game's theme color
+    
+    **Format:** `"#RRGGBB"`
+    
+    **Examples:**
+    - `"#4ade80"` (Genshin - green)
+    - `"#818cf8"` (Wuthering Waves - indigo)
+    - `"#22d3ee"` (Star Rail - cyan)
+    - `"#facc15"` (ZZZ - yellow)
+  </ResponseField>
+
+  <ResponseField name="imagen" type="string" required>
+    Full URL to the version's banner/hero image
+    
+    **Example:** `"https://fastcdn.hoyoverse.com/content-v2/plat/162828/c50d8c6e2597e9f88a66e06c3c32c5c5_5184430120368326656.jpg"`
+  </ResponseField>
+
+  <ResponseField name="patch_notes" type="string" required>
+    Full URL to official patch notes
+    
+    **Example:** `"https://genshin.hoyoverse.com/es/news/detail/162806"`
+  </ResponseField>
+
+  <ResponseField name="banner_phase_I" type="string">
+    Optional text describing Phase I banner characters/content
+    
+    **Example:** `"Columbina and Ineffa"`
+  </ResponseField>
+</Expandable>
+
+## Complete Example
+
+<CodeGroup>
+```json Genshin Impact
+{
+  "slug": "genshin-impact",
+  "nombre": "Genshin Impact New Version Countdown",
+  "version_actual": "6.4",
+  "proxima_version": "6.5",
+  "nombre_version_actual": "Homeward, He Who",
+  "slogan_name": "Caught the Wind",
+  "slogan_desc": "Varka is finally here",
+  "fecha_inicio": "2026-02-24T01:30:00Z",
+  "duracion_dias": 42,
+  "banner_phase_I": "Columbina and Ineffa",
+  "tema": "#4ade80",
+  "imagen": "https://fastcdn.hoyoverse.com/content-v2/plat/162828/c50d8c6e2597e9f88a66e06c3c32c5c5_5184430120368326656.jpg",
+  "patch_notes": "https://genshin.hoyoverse.com/es/news/detail/162806",
+  "href": "/genshin"
+}
+```
+
+```json Wuthering Waves
+{
+  "slug": "wuthering-waves",
+  "nombre": "Wuthering Waves New Version Countdown",
+  "version_actual": "3.1",
+  "proxima_version": "3.2",
+  "fecha_inicio": "2026-02-04T01:30:00Z",
+  "nombre_version_actual": "For You Who",
+  "slogan_name": "Walk in Snow",
+  "slogan_desc": "Get ready for new region Lahai-Roi.",
+  "duracion_dias": 41,
+  "tema": "#818cf8",
+  "imagen": "https://lblog.fp.guinfra.com/file/695a3e6e1af2b4c8406a06ebvH2k6evE03",
+  "href": "/wuwa",
+  "patch_notes": "https://wutheringwaves.kurogames.com/es/main/news/detail/4194"
+}
+```
+
+```json Zenless Zone Zero
+{
+  "slug": "zenless-zone-zero",
+  "nombre": "Zenless Zone Zero New Version Countdown",
+  "descripcion": "Zenless Zone Zero 2.7 Countdown for all region like America, Europe, Asia. Zenless Banner Countdown, Patch Notes, and more.",
+  "version_actual": "2.6",
+  "proxima_version": "2.7",
+  "fecha_inicio": "2026-02-06T01:30:00Z",
+  "nombre_version_actual": "Encore for an",
+  "slogan_name": "Old Dream",
+  "slogan_desc": "Angels of Delusion are coming to New Eridu.",
+  "duracion_dias": 46,
+  "tema": "#facc15",
+  "imagen": "https://lblog.fp.guinfra.com/file/69807e0e09090c1b8b1bcdb0jfHWI04f03",
+  "href": "/zzz",
+  "patch_notes": "https://zenless.hoyoverse.com/es-es/news/162562"
+}
+```
+</CodeGroup>
+
+## Usage in Components
+
+The game data is imported and used throughout the application:
+
+```typescript
+import gamesData from "@/data/games.json";
+
+const games = gamesData.games;
+```
+
+### In GameCard Component
+
+```astro
+<GameCard
+  title={game.nombre}
+  current={game.version_actual}
+  upcoming={game.proxima_version}
+  imagen={game.imagen}
+  fecha_inicio={game.fecha_inicio}
+  duracion_dias={game.duracion_dias}
+  tema={game.tema}
+  href={game.href}
+/>
+```
+
+## Version Number Format
+
+Version numbers follow a `major.minor` format:
+- Major version: Significant game updates
+- Minor version: Regular patch cycles (0-8)
+
+When minor version reaches 8, it cycles to the next major version (e.g., `3.8` → `4.0`).
+
+See the `avanzarVersion()` utility in `src/utils/change-version.ts` for version increment logic.

@@ -1,0 +1,334 @@
+---
+title: 'Layout Component'
+description: 'Base Astro layout component with SEO, meta tags, and page structure'
+---
+
+# Layout Component
+
+The `Layout` is the root layout component for all pages in the Version Counter application. It provides a complete HTML document structure with comprehensive SEO meta tags, Open Graph data, structured data, and consistent page structure with header and footer.
+
+## Props Interface
+
+The component exports a TypeScript interface for type-safe props:
+
+```typescript
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  url?: string;
+  type?: string;
+  keywords?: string;
+  author?: string;
+  canonical?: string;
+  lang?: string;
+}
+```
+
+<ParamField path="title" type="string" required>
+  Page title shown in browser tab and search results
+</ParamField>
+
+<ParamField path="description" type="string" default="Gacha Countdown - Track and manage your game versions">
+  Meta description for SEO and social media previews
+</ParamField>
+
+<ParamField path="image" type="string" default="/og-image.webp">
+  Open Graph image for social media sharing
+</ParamField>
+
+<ParamField path="url" type="string" default="Astro.url.pathname">
+  Canonical URL for the page. Auto-generated from current pathname if not provided
+</ParamField>
+
+<ParamField path="type" type="string" default="website">
+  Open Graph type (e.g., "website", "article")
+</ParamField>
+
+<ParamField path="keywords" type="string" default="(extensive keyword list)">
+  SEO keywords for search engines. Default includes comprehensive game-related terms
+</ParamField>
+
+<ParamField path="author" type="string" default="Gacha Countdown Team">
+  Content author for meta tags
+</ParamField>
+
+<ParamField path="canonical" type="string">
+  Custom canonical URL. Falls back to `url` if not provided
+</ParamField>
+
+<ParamField path="lang" type="string" default="en">
+  HTML language attribute (e.g., "en", "es")
+</ParamField>
+
+## Usage Examples
+
+### Basic Usage (Home Page)
+
+<CodeGroup>
+```astro index.astro
+---
+import Layout from "../layouts/Layout.astro";
+import GameCard from "../components/GameCard.astro";
+---
+
+<Layout
+  title="Gacha Countdown - Track Game Updates"
+  description="Track upcoming maintenance and patch releases for Hoyoverse and Kuro Games titles."
+>
+  <main class="max-w-7xl mx-auto w-full px-6 py-10">
+    <h1 class="text-4xl md:text-5xl font-bold mb-2">Update Dashboard</h1>
+    <!-- Page content -->
+  </main>
+</Layout>
+```
+
+```astro With Custom SEO
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout
+  title="Genshin Impact Version 5.5 Countdown"
+  description="Track the countdown to Genshin Impact version 5.5 release"
+  image="/images/genshin-og.webp"
+  keywords="genshin impact, version 5.5, countdown, update tracker"
+  type="article"
+>
+  <main>
+    <!-- Game-specific content -->
+  </main>
+</Layout>
+```
+</CodeGroup>
+
+### With Custom Canonical URL
+
+```astro
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="Privacy Policy"
+  description="Privacy policy for Gacha Countdown"
+  canonical="https://gachacountdown.com/privacy"
+>
+  <main>
+    <!-- Privacy policy content -->
+  </main>
+</Layout>
+```
+
+## HTML Structure
+
+The Layout component generates a complete HTML document:
+
+### Head Section
+
+<Tabs>
+  <Tab title="Basic Meta">
+    ```html
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <meta name="author" content={author} />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0f172a" />
+    <link rel="canonical" href={canonical ?? url} />
+    ```
+  </Tab>
+  <Tab title="Open Graph">
+    ```html
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(image, Astro.site).href} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content={url} />
+    <meta property="og:site_name" content="Gacha Countdown" />
+    ```
+  </Tab>
+  <Tab title="Twitter Card">
+    ```html
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(image, Astro.site).href} />
+    ```
+  </Tab>
+  <Tab title="Structured Data">
+    ```html
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": title,
+      "alternateName": "Game Version Countdown Tracker",
+      "description": description,
+      "url": url,
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Any"
+    }
+    </script>
+    ```
+  </Tab>
+</Tabs>
+
+### External Resources
+
+```html
+<!-- Google Material Icons -->
+<link
+  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+  rel="stylesheet"
+/>
+
+<!-- Sitemap -->
+<link rel="sitemap" href="/sitemap-index.xml" />
+
+<!-- Astro Client Router -->
+<ClientRouter />
+```
+
+### Body Structure
+
+```astro
+<body class="bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+  <div class="text-white relative flex h-full grow flex-col">
+    <Header />
+    <slot />
+    <Footer />
+  </div>
+</body>
+```
+
+## SEO Features
+
+### Default Keywords
+
+The layout includes comprehensive multilingual keywords:
+
+```typescript
+keywords = `
+game version countdown,
+game update tracker,
+next game version,
+genshin impact version countdown,
+genshin impact update tracker,
+honkai star rail version countdown,
+wuthering waves version countdown,
+zenless zone zero version countdown,
+gacha game updates,
+live service game updates,
+contador de versiones,
+cuenta atras versiones juegos,
+proxima version genshin impact,
+contador version genshin impact,
+proxima version honkai star rail,
+contador version wuthering waves,
+proxima version zenless zone zero
+`
+```
+
+<Note>
+Keywords are normalized with `keywords.replace(/\s+/g, " ").trim()` to remove extra whitespace.
+</Note>
+
+### Canonical URLs
+
+Canonical URLs are automatically generated:
+
+```typescript
+url = new URL(Astro.url.pathname, Astro.site).href
+canonical = canonical ?? url
+```
+
+### Structured Data
+
+The component includes Schema.org `SoftwareApplication` structured data for enhanced search results.
+
+## Styling
+
+### Global Imports
+
+```astro
+---
+import "../styles/global.css";
+import "@fontsource-variable/orbitron";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { ClientRouter } from "astro:transitions";
+---
+```
+
+### Custom Font
+
+```html
+<style>
+  body {
+    font-family: "Orbitron Variable", sans-serif;
+  }
+</style>
+```
+
+The Orbitron Variable font provides a modern, tech-inspired aesthetic perfect for gaming countdown applications.
+
+### Theme Colors
+
+- **Background**: `bg-background-dark` (custom dark theme)
+- **Text**: `text-slate-900 dark:text-slate-100` (responsive to dark mode)
+- **Theme color**: `#0f172a` (slate-900)
+
+## Page Structure Components
+
+### Header
+
+Imported from `../components/Header.astro` - provides navigation and branding.
+
+### Footer
+
+Imported from `../components/Footer.astro` - provides footer links and information.
+
+### Slot
+
+The `<slot />` element is where page-specific content is injected:
+
+```astro
+<Header />
+<slot />  <!-- Your page content goes here -->
+<Footer />
+```
+
+## Client-Side Routing
+
+The layout includes Astro's ClientRouter for SPA-like navigation:
+
+```astro
+import { ClientRouter } from "astro:transitions";
+
+<ClientRouter />
+```
+
+This enables smooth page transitions without full page reloads.
+
+## Responsive Design
+
+- **Mobile-first**: Uses responsive Tailwind classes
+- **Dark mode ready**: Includes dark mode variants
+- **Flexible layout**: `min-h-screen flex flex-col` ensures footer stays at bottom
+
+## Best Practices
+
+1. **Always provide a title**: Required for SEO and user experience
+2. **Custom descriptions**: Override default for each page
+3. **Unique images**: Use page-specific OG images for better social sharing
+4. **Canonical URLs**: Set explicitly for pages with multiple URLs
+5. **Keywords**: Add page-specific keywords to supplement defaults
+
+## Source Location
+
+The Layout component is located at: `src/layouts/Layout.astro`

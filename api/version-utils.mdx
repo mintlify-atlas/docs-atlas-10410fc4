@@ -1,0 +1,114 @@
+---
+title: 'Version Utilities'
+description: 'Utility functions for version management'
+---
+
+## avanzarVersion
+
+Increments the version number following a custom versioning scheme where minor versions go from 0 to 8, then roll over to the next major version.
+
+### Function Signature
+
+```typescript
+function avanzarVersion(version: string): string
+```
+
+### Parameters
+
+<ParamField path="version" type="string" required>
+  The current version string in the format "major.minor" (e.g., "1.5", "2.8")
+</ParamField>
+
+### Returns
+
+<ResponseField name="version" type="string">
+  The next version number according to the versioning rules:
+  - If minor version is 8, increments major version and resets minor to 0
+  - Otherwise, increments minor version by 1
+</ResponseField>
+
+### Behavior
+
+The function implements a specific versioning scheme:
+
+1. **Standard increment**: Minor versions 0-7 increment normally (e.g., 1.5 → 1.6)
+2. **Rollover at 8**: When minor version is 8, it rolls over to the next major version with minor 0 (e.g., 2.8 → 3.0)
+
+### Examples
+
+<CodeGroup>
+
+```typescript Standard Increment
+import { avanzarVersion } from './utils/change-version';
+
+// Standard minor version increment
+const newVersion = avanzarVersion("1.5");
+console.log(newVersion); // "1.6"
+
+const anotherVersion = avanzarVersion("2.0");
+console.log(anotherVersion); // "2.1"
+```
+
+```typescript Rollover Case
+import { avanzarVersion } from './utils/change-version';
+
+// Minor version 8 triggers major version increment
+const newVersion = avanzarVersion("2.8");
+console.log(newVersion); // "3.0"
+
+const anotherRollover = avanzarVersion("15.8");
+console.log(anotherRollover); // "16.0"
+```
+
+```typescript Sequential Updates
+import { avanzarVersion } from './utils/change-version';
+
+// Sequential version updates
+let version = "1.7";
+version = avanzarVersion(version); // "1.8"
+version = avanzarVersion(version); // "2.0"
+version = avanzarVersion(version); // "2.1"
+console.log(version); // "2.1"
+```
+
+</CodeGroup>
+
+### Edge Cases
+
+<Note>
+  **Version 8 Rollover**: The function treats minor version "8" as the maximum before rolling over to the next major version. This creates a 0-8 range (9 possible minor versions) rather than the traditional 0-9 range.
+</Note>
+
+<CodeGroup>
+
+```typescript Edge Cases
+import { avanzarVersion } from './utils/change-version';
+
+// Starting from 0
+avanzarVersion("0.0"); // "0.1"
+avanzarVersion("0.8"); // "1.0"
+
+// Large version numbers
+avanzarVersion("99.7"); // "99.8"
+avanzarVersion("99.8"); // "100.0"
+
+// Sequential through rollover boundary
+avanzarVersion("5.7"); // "5.8"
+avanzarVersion("5.8"); // "6.0"
+avanzarVersion("6.0"); // "6.1"
+```
+
+</CodeGroup>
+
+### Implementation Details
+
+The function uses string splitting and parsing to handle version numbers:
+
+1. Splits the version string on the "." delimiter
+2. Checks if the minor version equals "8" (string comparison)
+3. If yes: increments the major version and sets minor to 0
+4. If no: keeps the major version and increments the minor version
+
+<Note>
+  The function expects well-formed version strings with exactly one decimal point. It does not include input validation, so ensure version strings follow the "major.minor" format.
+</Note>

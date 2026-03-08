@@ -1,0 +1,93 @@
+---
+title: 'Constants'
+description: 'Application-wide constants and configuration values'
+---
+
+## Overview
+
+This module exports constants used throughout the Version Counter application for configuration and business logic.
+
+## Constants
+
+### MANTENIMIENTO_DURACION_HORAS
+
+<ParamField path="MANTENIMIENTO_DURACION_HORAS" type="number" default="4">
+  The duration in hours for a maintenance window.
+</ParamField>
+
+#### Description
+
+Defines the standard duration for maintenance periods in the application. This constant is used to calculate maintenance windows and schedule maintenance-related operations.
+
+#### Value
+
+```typescript
+export const MANTENIMIENTO_DURACION_HORAS = 4;
+```
+
+#### Usage
+
+<CodeGroup>
+
+```typescript Import and Use
+import { MANTENIMIENTO_DURACION_HORAS } from './constants/constantes';
+
+// Calculate maintenance end time
+const maintenanceStart = new Date();
+const maintenanceEnd = new Date(
+  maintenanceStart.getTime() + MANTENIMIENTO_DURACION_HORAS * 60 * 60 * 1000
+);
+
+console.log(`Maintenance window: ${MANTENIMIENTO_DURACION_HORAS} hours`);
+console.log(`Starts: ${maintenanceStart.toISOString()}`);
+console.log(`Ends: ${maintenanceEnd.toISOString()}`);
+```
+
+```typescript Scheduling Example
+import { MANTENIMIENTO_DURACION_HORAS } from './constants/constantes';
+
+function scheduleMaintenanceWindow(startTime: Date) {
+  const durationMs = MANTENIMIENTO_DURACION_HORAS * 60 * 60 * 1000;
+  const endTime = new Date(startTime.getTime() + durationMs);
+  
+  return {
+    start: startTime,
+    end: endTime,
+    durationHours: MANTENIMIENTO_DURACION_HORAS
+  };
+}
+
+const window = scheduleMaintenanceWindow(new Date('2026-03-08T02:00:00Z'));
+console.log(window);
+// {
+//   start: 2026-03-08T02:00:00.000Z,
+//   end: 2026-03-08T06:00:00.000Z,
+//   durationHours: 4
+// }
+```
+
+```typescript Display to Users
+import { MANTENIMIENTO_DURACION_HORAS } from './constants/constantes';
+
+function getMaintenanceMessage(): string {
+  return `Scheduled maintenance will last approximately ${MANTENIMIENTO_DURACION_HORAS} hours. Please plan accordingly.`;
+}
+
+console.log(getMaintenanceMessage());
+// "Scheduled maintenance will last approximately 4 hours. Please plan accordingly."
+```
+
+</CodeGroup>
+
+<Note>
+  This constant represents the standard maintenance duration. Actual maintenance windows may vary based on the complexity of updates being deployed.
+</Note>
+
+## Type Definitions
+
+All constants are exported as `const` declarations, ensuring they cannot be modified at runtime.
+
+```typescript
+// TypeScript infers the type as: number
+type MaintenanceDuration = typeof MANTENIMIENTO_DURACION_HORAS;
+```

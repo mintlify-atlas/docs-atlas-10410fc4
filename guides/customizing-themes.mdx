@@ -1,0 +1,424 @@
+---
+title: Customizing Themes
+description: Learn how to customize game themes, colors, and visual styling in Version Counter
+icon: "palette"
+---
+
+Version Counter uses a dynamic theming system that allows each game to have unique colors and visual styling. This guide explains how to customize themes at both the game level and globally.
+
+## Theme System Overview
+
+The application uses a combination of:
+- **Per-game theme colors** defined in `games.json`
+- **Tailwind CSS** for utility classes and design tokens
+- **CSS custom properties** for dynamic color injection
+- **Glass morphism effects** for modern UI aesthetics
+
+## Game-Specific Themes
+
+Each game in `src/data/games.json` has a `tema` property that defines its primary accent color:
+
+```json src/data/games.json
+{
+  "slug": "genshin-impact",
+  "nombre": "Genshin Impact New Version Countdown",
+  "tema": "#4ade80",  // Green accent color
+  "imagen": "https://..."
+}
+```
+
+### Where Theme Colors Appear
+
+The `tema` color is dynamically applied to:
+
+<Steps>
+  <Step title="Version Badge">
+    The "Current: v6.4" badge in the top-right corner of game cards:
+
+    ```astro src/components/GameCard.astro:28-32
+    <div class="absolute top-6 right-6 glass-panel">
+      <span
+        class="text-xs font-bold"
+        style=`color: ${tema}`
+      >
+        Current: v{current}
+      </span>
+    </div>
+    ```
+  </Step>
+
+  <Step title="Hover Border Effect">
+    The animated bottom border that appears on card hover:
+
+    ```astro src/components/GameCard.astro:49-50
+    <div
+      class="absolute bottom-0 left-0 h-1 bg-genshin transition-all w-0 group-hover:w-full"
+    >
+    </div>
+    ```
+
+    <Note>
+      The border transitions from 0 to full width on hover, creating a smooth fill effect.
+    </Note>
+  </Step>
+
+  <Step title="Detail Page Accents">
+    On individual game pages, the theme color is used for:
+    - Status indicators (pulsing live badge)
+    - Border accents
+    - Button hover states
+    - Timer highlights
+  </Step>
+</Steps>
+
+## Changing Game Colors
+
+<Steps>
+  <Step title="Choose Your Color">
+    Select a hex color that matches your game's brand identity. You can use tools like:
+    - [Coolors](https://coolors.co/) for color palette generation
+    - [Adobe Color](https://color.adobe.com/) for accessibility testing
+    - Browser DevTools eyedropper to sample from official artwork
+
+    ```json
+    "tema": "#818cf8"  // Purple/indigo for Wuthering Waves
+    ```
+  </Step>
+
+  <Step title="Update games.json">
+    Modify the `tema` property for your target game:
+
+    ```json src/data/games.json
+    {
+      "slug": "wuthering-waves",
+      "tema": "#818cf8"  // Changed from default
+    }
+    ```
+  </Step>
+
+  <Step title="Test the Changes">
+    The changes apply immediately in development mode:
+
+    ```bash
+    npm run dev
+    ```
+
+    Check both the home page card and the detail page to ensure the color looks good in all contexts.
+  </Step>
+</Steps>
+
+## Global Theme Configuration
+
+Version Counter uses Tailwind CSS for global theming. The configuration is in the project root:
+
+```javascript tailwind.config.js
+export default {
+  theme: {
+    extend: {
+      colors: {
+        // Add custom color utilities
+        'primary': '#4ade80',
+        'gold': '#d4ad6a',
+        'genshin': '#4ade80',
+      }
+    }
+  }
+}
+```
+
+### Built-in Color Classes
+
+The application includes several pre-defined color utilities:
+
+| Class | Hex | Usage |
+|-------|-----|-------|
+| `text-primary` | `#4ade80` | Primary green accent |
+| `text-gold` | `#d4ad6a` | Gold/yellow highlights |
+| `bg-genshin` | `#4ade80` | Genshin Impact brand color |
+| `text-slate-400` | - | Muted text |
+| `border-slate-800` | - | Subtle borders |
+
+## Glass Morphism Effects
+
+The application uses custom glass panel styles for modern UI elements:
+
+```css
+.glass-panel {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+```
+
+These appear in:
+- Version badges on game cards
+- Timer blocks on detail pages
+- Interactive buttons and controls
+
+### Customizing Glass Effects
+
+You can adjust the glass morphism intensity by modifying the alpha values:
+
+```astro
+<div
+  class="glass-panel"
+  style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px);"
+>
+  <!-- More opaque and blurred -->
+</div>
+```
+
+<Warning>
+  `backdrop-filter` has performance implications on low-end devices. Use sparingly and test on target hardware.
+</Warning>
+
+## Counter Component Theming
+
+The `Counter` component (`src/components/react/Counter.tsx`) has two variants with different styling:
+
+### Mini Variant (Home Page)
+
+```tsx src/components/react/Counter.tsx:66-73
+if (variant === "mini") {
+  return (
+    <div className="grid grid-cols-4 gap-4 max-w-sm">
+      <MiniBlock value={tiempo.dias} label="Days" />
+      <MiniBlock value={tiempo.horas} label="Hours" />
+      <MiniBlock value={tiempo.minutos} label="Mins" />
+      <MiniBlock value={tiempo.segundos} label="Secs" />
+    </div>
+  );
+}
+```
+
+Features:
+- Compact 4-column grid
+- Simple text-based display
+- Uses `countdown-font` class for numbers
+
+### Full Variant (Detail Pages)
+
+```tsx src/components/react/Counter.tsx:78-85
+return (
+  <>
+    <FullBlock value={tiempo.dias} label="Days" />
+    <FullBlock value={tiempo.horas} label="Hours" />
+    <FullBlock value={tiempo.minutos} label="Minutes" />
+    <FullBlock value={tiempo.segundos} label="Seconds" highlight />
+  </>
+);
+```
+
+Features:
+- Large glass panel blocks
+- Hover effects with color transitions
+- Animated pulse on seconds
+- Responsive sizing (aspect-square on mobile)
+
+### Customizing Timer Colors
+
+The Full variant uses a purple accent color (`#4b2bee`) by default:
+
+```tsx src/components/react/Counter.tsx:114-123
+<div
+  className={`glass-panel ... ${
+    highlight ? "border-[#4b2bee]/50" : ""
+  }`}
+>
+  <span
+    className={`... ${
+      highlight
+        ? "text-[#4b2bee] animate-pulse"
+        : "text-white group-hover:text-[#4b2bee]"
+    }`}
+  >
+```
+
+To change this color:
+
+<Steps>
+  <Step title="Option 1: Tailwind Config">
+    Add a new color utility in `tailwind.config.js`:
+
+    ```javascript
+    colors: {
+      'timer-accent': '#your-color',
+    }
+    ```
+
+    Then use it in the component:
+
+    ```tsx
+    className="text-timer-accent"
+    ```
+  </Step>
+
+  <Step title="Option 2: Dynamic Inline Styles">
+    Pass the theme color as a prop and apply it dynamically:
+
+    ```tsx
+    <Counter
+      client:load
+      fecha_inicio={game?.fecha_inicio}
+      duracion_dias={game?.duracion_dias}
+      variant="full"
+      accentColor={game?.tema}
+    />
+    ```
+
+    Then use inline styles in the component.
+  </Step>
+</Steps>
+
+## Background Images and Overlays
+
+Game cards use a gradient overlay system to ensure text readability:
+
+```astro src/components/GameCard.astro:21-24
+<div
+  class="absolute inset-0 bg-cover bg-center"
+  style=`background-image: linear-gradient(180deg, rgba(10, 10, 12, 0.2) 0%, rgba(10, 10, 12, 0.95) 100%), url(${imagen});`
+>
+</div>
+```
+
+### Gradient Breakdown
+
+- **Top (0%)**: `rgba(10, 10, 12, 0.2)` — 20% opacity dark overlay
+- **Bottom (100%)**: `rgba(10, 10, 12, 0.95)` — 95% opacity dark overlay
+
+<Tip>
+  Adjust the gradient stops to control how much of the background image is visible. Lower bottom opacity values reveal more of the image.
+</Tip>
+
+### Customizing Overlays
+
+```astro
+<!-- Lighter overlay for brighter images -->
+style=`background-image: linear-gradient(180deg, rgba(10, 10, 12, 0.1) 0%, rgba(10, 10, 12, 0.8) 100%), url(${imagen});`
+
+<!-- Colored overlay tint -->
+style=`background-image: linear-gradient(180deg, rgba(75, 43, 238, 0.3) 0%, rgba(10, 10, 12, 0.95) 100%), url(${imagen});`
+```
+
+## Dark Mode Support
+
+The application is designed with dark mode as the primary theme. Tailwind's `dark:` variant is used for conditional styling:
+
+```astro
+<div class="border-slate-200 dark:border-slate-800">
+  <!-- Light: slate-200, Dark: slate-800 -->
+</div>
+```
+
+All game cards and components are optimized for dark backgrounds with light text.
+
+## Responsive Design
+
+Theme elements adapt to different screen sizes using Tailwind's responsive prefixes:
+
+```astro
+<h1 class="text-4xl md:text-6xl font-black">
+  <!-- 4xl on mobile, 6xl on md+ screens -->
+</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <!-- 1 column on mobile, 2 columns on md+ -->
+</div>
+```
+
+## Animation and Transitions
+
+The theme system includes several built-in animations:
+
+### Pulse Animation
+
+```astro
+<div class="size-2 rounded-full bg-green-500 animate-pulse"></div>
+```
+
+Used for live status indicators.
+
+### Hover Scale
+
+```astro
+<div class="transition-transform duration-700 group-hover:scale-110">
+  <!-- Background image scales on card hover -->
+</div>
+```
+
+### Border Animation
+
+```astro
+<div class="transition-all w-0 group-hover:w-full">
+  <!-- Border width animates from 0 to 100% -->
+</div>
+```
+
+## Best Practices
+
+<Accordion title="Color Contrast">
+  - Ensure text has at least 4.5:1 contrast ratio against backgrounds
+  - Test theme colors with WCAG accessibility tools
+  - Avoid pure black (`#000000`) — use near-black (`#0a0a0c`) instead
+  - Provide sufficient contrast for interactive elements
+</Accordion>
+
+<Accordion title="Performance">
+  - Use `backdrop-filter` sparingly (GPU-intensive)
+  - Optimize background images (compress, use modern formats like WebP)
+  - Limit the number of animated elements on screen
+  - Test on lower-end devices and mobile
+</Accordion>
+
+<Accordion title="Consistency">
+  - Use Tailwind utilities instead of custom CSS when possible
+  - Keep theme colors in sync with brand guidelines
+  - Document custom color choices for team reference
+  - Reuse glass-panel and other utility classes
+</Accordion>
+
+<Accordion title="Accessibility">
+  - Don't rely solely on color to convey information
+  - Provide text alternatives for visual indicators
+  - Test with screen readers and keyboard navigation
+  - Ensure animations respect `prefers-reduced-motion`
+</Accordion>
+
+## Examples from Production
+
+Here are the theme colors currently used in the application:
+
+```json src/data/games.json
+[
+  {
+    "slug": "genshin-impact",
+    "tema": "#4ade80"  // Vibrant green
+  },
+  {
+    "slug": "wuthering-waves",
+    "tema": "#818cf8"  // Soft purple
+  },
+  {
+    "slug": "honkai-star-rail",
+    "tema": "#22d3ee"  // Bright cyan
+  },
+  {
+    "slug": "zenless-zone-zero",
+    "tema": "#facc15"  // Bold yellow
+  }
+]
+```
+
+Each color was chosen to match the game's official branding and visual identity.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Counter Component" icon="clock" href="/components/counter">
+    Learn about the Counter component API
+  </Card>
+  <Card title="Layout Component" icon="layout" href="/components/layout">
+    Explore the Layout component structure
+  </Card>
+</CardGroup>

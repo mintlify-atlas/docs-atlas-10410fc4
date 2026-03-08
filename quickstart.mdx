@@ -1,80 +1,142 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: 'Quickstart'
+description: 'Get Version Counter running locally in under 5 minutes'
 ---
 
-## Get started in three steps
+Get Version Counter up and running on your local machine in minutes. This guide will take you from cloning the repository to viewing the live countdown timers in your browser.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before you begin, ensure you have the following installed:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+- **Node.js** (v18 or higher)
+- **pnpm** (recommended package manager)
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+If you don't have pnpm installed, you can install it globally with `npm install -g pnpm`
+</Note>
+
+## Installation
+
+<Steps>
+  <Step title="Clone the repository">
+    Clone the Version Counter repository to your local machine:
+
+    ```bash
+    git clone https://github.com/your-org/version-counter.git
+    cd version-counter
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    Install all required packages using pnpm:
+
+    ```bash
+    pnpm install
+    ```
+
+    This will install the following key dependencies:
+    - **Astro** - The web framework
+    - **React** - For interactive components
+    - **Tailwind CSS** - For styling
+  </Step>
+
+  <Step title="Start the development server">
+    Launch the development server:
+
+    ```bash
+    pnpm dev
+    ```
+
+    The application will start at `http://localhost:4321`
+  </Step>
+
+  <Step title="View the application">
+    Open your browser and navigate to [http://localhost:4321](http://localhost:4321). You should see the Version Counter dashboard with live countdown timers for all supported games.
+  </Step>
+</Steps>
+
+## What You'll See
+
+Once the dev server is running, you'll see the main dashboard displaying countdown timers for:
+
+- **Genshin Impact** - Current version 6.4, countdown to 6.5
+- **Honkai Star Rail** - Current version 4.0, countdown to 4.1
+- **Wuthering Waves** - Current version 3.1, countdown to 3.2
+- **Zenless Zone Zero** - Current version 2.6, countdown to 2.7
+
+Each game card shows:
+- Real-time countdown to the next version release
+- Current and upcoming version numbers
+- Version theme and banner image
+- Links to official patch notes
+
+## Available Scripts
+
+The project includes several npm scripts for different tasks:
+
+<CodeGroup>
+```bash dev
+pnpm dev
+```
+
+```bash build
+pnpm build
+```
+
+```bash preview
+pnpm preview
+```
+
+```bash astro
+pnpm astro
+```
+</CodeGroup>
+
+| Script | Description |
+|--------|-------------|
+| `pnpm dev` | Starts the development server with hot reload |
+| `pnpm build` | Builds the project for production |
+| `pnpm preview` | Previews the production build locally |
+| `pnpm astro` | Runs Astro CLI commands |
+
+## Project Structure
+
+Here's what you'll find in the source code:
+
+```
+src/
+├── components/
+│   ├── react/
+│   │   └── Counter.tsx          # Real-time countdown component
+│   ├── GameCard.astro            # Individual game card display
+│   ├── Header.astro              # Site header
+│   └── Footer.astro              # Site footer
+├── data/
+│   └── games.json                # Game version data and configuration
+├── pages/
+│   ├── index.astro               # Main dashboard page
+│   └── games/                    # Individual game pages
+│       ├── genshin.astro
+│       ├── hsr.astro
+│       ├── wuwa.astro
+│       └── zzz.astro
+└── layouts/
+    └── Layout.astro              # Base layout template
+```
+
+<Tip>
+The `games.json` file in `src/data/` contains all the version information, release dates, and configuration for each game. This is the primary file you'll edit when updating version information.
+</Tip>
+
+## Next Steps
+
+Now that you have Version Counter running locally, you can:
+
+- Learn how to [add new games](/guides/adding-games) to the dashboard
+- Explore [customizing themes](/guides/customizing-themes) for your games
+- Read about [deployment options](/guides/deployment) to publish your own instance
+
+<Note>
+The development server includes hot module replacement (HMR), so any changes you make to the source code will automatically reload in your browser.
 </Note>

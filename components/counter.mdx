@@ -1,0 +1,198 @@
+---
+title: 'Counter Component'
+description: 'React countdown timer component with multiple display variants'
+---
+
+# Counter Component
+
+The `Counter` is a React component that displays a real-time countdown timer. It calculates the time remaining between a start date and end date, updating every second. The component supports two display variants: a compact "mini" version for cards and a full-featured version for dedicated pages.
+
+## Props
+
+<ParamField path="fecha_inicio" type="string | Date" default="Date.now()">
+  The start date of the countdown period. Can be a date string or Date object.
+</ParamField>
+
+<ParamField path="duracion_dias" type="number" default="0">
+  Duration in days from the start date. Used to calculate the end date automatically.
+</ParamField>
+
+<ParamField path="variant" type="'mini' | 'full'" default="'mini'">
+  Display variant:
+  - `mini`: Compact 4-column grid layout for cards
+  - `full`: Large individual blocks with glass panel styling
+</ParamField>
+
+<ParamField path="onFinalizado" type="() => void">
+  Optional callback function triggered when the countdown reaches zero.
+</ParamField>
+
+## Type Definitions
+
+```typescript
+type Variant = "mini" | "full";
+
+interface CounterProps {
+  fecha_inicio?: string | Date;
+  duracion_dias?: number;
+  variant?: Variant;
+  onFinalizado?: () => void;
+}
+```
+
+## Component Behavior
+
+### Time Calculation
+
+The component calculates remaining time by:
+1. Converting `fecha_inicio` to milliseconds
+2. Adding `duracion_dias` (converted to milliseconds) to get the end time
+3. Computing the difference between end time and current time
+4. Updating every second via `setInterval`
+
+### States
+
+- **Active**: Displays countdown with days, hours, minutes, and seconds
+- **Finished**: Shows "Versión finalizada" message when countdown reaches zero
+
+## Usage Examples
+
+### Mini Variant (Home Page)
+
+<CodeGroup>
+```astro GameCard.astro
+---
+import { Counter } from "./react/Counter";
+---
+
+<div class="relative z-10">
+  <h3 class="text-2xl font-bold">{title}</h3>
+  <Counter
+    client:load
+    fecha_inicio={fecha_inicio}
+    duracion_dias={duracion_dias}
+  />
+</div>
+```
+
+```tsx Usage in React
+import { Counter } from "./components/react/Counter";
+
+export function GameCard() {
+  return (
+    <Counter
+      fecha_inicio="2026-03-24T06:00:00Z"
+      duracion_dias={42}
+      variant="mini"
+    />
+  );
+}
+```
+</CodeGroup>
+
+The mini variant renders as a compact 4-column grid:
+
+```tsx
+<div className="grid grid-cols-4 gap-4 max-w-sm">
+  <MiniBlock value={tiempo.dias} label="Days" />
+  <MiniBlock value={tiempo.horas} label="Hours" />
+  <MiniBlock value={tiempo.minutos} label="Mins" />
+  <MiniBlock value={tiempo.segundos} label="Secs" />
+</div>
+```
+
+### Full Variant (Game Detail Pages)
+
+<CodeGroup>
+```astro genshin.astro
+---
+import { Counter } from "../../components/react/Counter";
+import data from "../../data/games.json";
+
+const game = data.games.find((juego) => juego.slug === "genshin-impact");
+---
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-200 mx-auto py-8">
+  <Counter
+    client:load
+    fecha_inicio={game?.fecha_inicio}
+    duracion_dias={game?.duracion_dias}
+    variant="full"
+  />
+</div>
+```
+
+```tsx With Callback
+import { Counter } from "./components/react/Counter";
+
+export function GamePage() {
+  const handleFinished = () => {
+    console.log("Version countdown finished!");
+    // Trigger notification or update UI
+  };
+
+  return (
+    <Counter
+      fecha_inicio="2026-03-24T06:00:00Z"
+      duracion_dias={42}
+      variant="full"
+      onFinalizado={handleFinished}
+    />
+  );
+}
+```
+</CodeGroup>
+
+The full variant renders as individual blocks with glass panel effects and animations:
+
+```tsx
+<>
+  <FullBlock value={tiempo.dias} label="Days" />
+  <FullBlock value={tiempo.horas} label="Hours" />
+  <FullBlock value={tiempo.minutos} label="Minutes" />
+  <FullBlock value={tiempo.segundos} label="Seconds" highlight />
+</>
+```
+
+## Visual Styling
+
+### Mini Variant
+- **Layout**: 4-column grid with minimal spacing
+- **Numbers**: 3xl font, bold, countdown-font class
+- **Labels**: Tiny (10px) uppercase with wide letter spacing
+- **Best for**: Compact cards on home/overview pages
+
+### Full Variant
+- **Layout**: Individual glass panel blocks
+- **Numbers**: 4xl-5xl font with hover effects
+- **Effects**: Primary glow, hover border transitions, pulse animation on seconds
+- **Highlight**: The seconds block includes special styling with purple theme color (#4b2bee)
+- **Best for**: Dedicated countdown pages with large display
+
+<Note>
+When using in Astro, remember to include `client:load` directive to enable client-side hydration for the real-time countdown functionality.
+</Note>
+
+## Implementation Details
+
+### React Hooks
+
+The component uses:
+- `useState` to track countdown state and finished status
+- `useEffect` to set up interval-based time updates
+- Cleanup function to clear interval on unmount
+
+### Time Object Structure
+
+```typescript
+const [tiempo, setTiempo] = React.useState({
+  dias: 0,
+  horas: 0,
+  minutos: 0,
+  segundos: 0,
+});
+```
+
+## Source Location
+
+The Counter component is located at: `src/components/react/Counter.tsx`

@@ -1,0 +1,291 @@
+---
+title: 'TypeScript Types'
+description: 'TypeScript interfaces and types used in Version Counter components'
+icon: 'code'
+---
+
+## Overview
+
+This page documents the TypeScript types and interfaces used throughout the Version Counter application, including component props and utility types.
+
+## Component Types
+
+### CounterProps
+
+The `Counter` component accepts the following props for displaying countdown timers.
+
+**Location:** `src/components/react/Counter.tsx`
+
+<ParamField path="fecha_inicio" type="string | Date">
+  Start date for the countdown. Can be an ISO 8601 string or Date object.
+  
+  **Default:** `Date.now()` (current time)
+  
+  **Example:** `"2026-02-24T01:30:00Z"`
+</ParamField>
+
+<ParamField path="duracion_dias" type="number">
+  Duration of the version/countdown period in days
+  
+  **Default:** `0`
+  
+  **Example:** `42`
+</ParamField>
+
+<ParamField path="variant" type="Variant">
+  Display variant for the counter. Determines the visual style and layout.
+  
+  **Type:** `"mini" | "full"`
+  
+  **Default:** `"mini"`
+  
+  - `"mini"` - Compact grid layout with 4 columns (used on home page)
+  - `"full"` - Large glass panel blocks (used on game-specific pages)
+</ParamField>
+
+<ParamField path="onFinalizado" type="() => void">
+  Optional callback function triggered when the countdown reaches zero
+  
+  **Example:**
+  ```typescript
+  <Counter 
+    fecha_inicio={startDate}
+    duracion_dias={42}
+    onFinalizado={() => console.log('Version ended!')}
+  />
+  ```
+</ParamField>
+
+#### Type Definition
+
+```typescript
+type Variant = "mini" | "full";
+
+interface CounterProps {
+  fecha_inicio?: string | Date;
+  duracion_dias?: number;
+  variant?: Variant;
+  onFinalizado?: () => void;
+}
+```
+
+#### Usage Examples
+
+<CodeGroup>
+```typescript Mini Variant (Home Page)
+import { Counter } from "@/components/react/Counter";
+
+<Counter
+  client:load
+  fecha_inicio="2026-02-24T01:30:00Z"
+  duracion_dias={42}
+  variant="mini"
+/>
+```
+
+```typescript Full Variant (Game Page)
+import { Counter } from "@/components/react/Counter";
+
+<Counter
+  client:load
+  fecha_inicio={game.fecha_inicio}
+  duracion_dias={game.duracion_dias}
+  variant="full"
+  onFinalizado={() => {
+    // Handle countdown completion
+    window.location.reload();
+  }}
+/>
+```
+</CodeGroup>
+
+### GameCardProps
+
+The `GameCard` component displays game version information with countdown.
+
+**Location:** `src/components/GameCard.astro`
+
+<ParamField path="title" type="string" required>
+  Game title to display on the card
+  
+  **Example:** `"Genshin Impact New Version Countdown"`
+</ParamField>
+
+<ParamField path="current" type="string" required>
+  Current version number
+  
+  **Example:** `"6.4"`
+</ParamField>
+
+<ParamField path="upcoming" type="string" required>
+  Upcoming version number
+  
+  **Example:** `"6.5"`
+</ParamField>
+
+<ParamField path="imagen" type="string" required>
+  URL to the card's background image
+  
+  **Example:** `"https://fastcdn.hoyoverse.com/content-v2/plat/162828/..."`
+</ParamField>
+
+<ParamField path="fecha_inicio" type="string" required>
+  ISO 8601 timestamp for version start (passed to Counter component)
+  
+  **Example:** `"2026-02-24T01:30:00Z"`
+</ParamField>
+
+<ParamField path="duracion_dias" type="number" required>
+  Duration in days (passed to Counter component)
+  
+  **Example:** `42`
+</ParamField>
+
+<ParamField path="tema" type="string" required>
+  Hex color code for the game's theme
+  
+  **Example:** `"#4ade80"`
+</ParamField>
+
+<ParamField path="href" type="string" required>
+  Relative path to the game's detail page
+  
+  **Example:** `"/genshin"`
+</ParamField>
+
+#### Usage Example
+
+```astro
+import GameCard from "@/components/GameCard.astro";
+import gamesData from "@/data/games.json";
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  {gamesData.games.map((game) => (
+    <GameCard
+      title={game.nombre}
+      current={game.version_actual}
+      upcoming={game.proxima_version}
+      imagen={game.imagen}
+      fecha_inicio={game.fecha_inicio}
+      duracion_dias={game.duracion_dias}
+      tema={game.tema}
+      href={game.href}
+    />
+  ))}
+</div>
+```
+
+## Utility Types
+
+### Time Object
+
+Internal type used by the Counter component to track remaining time.
+
+```typescript
+interface Time {
+  dias: number;      // Days remaining
+  horas: number;     // Hours remaining (0-23)
+  minutos: number;   // Minutes remaining (0-59)
+  segundos: number;  // Seconds remaining (0-59)
+}
+```
+
+**Usage:** This type is used internally within the Counter component's state management:
+
+```typescript
+const [tiempo, setTiempo] = React.useState<Time>({
+  dias: 0,
+  horas: 0,
+  minutos: 0,
+  segundos: 0,
+});
+```
+
+### Variant Type
+
+String literal union type for counter display modes.
+
+```typescript
+type Variant = "mini" | "full";
+```
+
+<ResponseField name="mini" type="string">
+  Compact 4-column grid layout
+  - Used on: Home page game cards
+  - Display: Small countdown blocks in a horizontal row
+  - Styling: Minimal, space-efficient design
+</ResponseField>
+
+<ResponseField name="full" type="string">
+  Large glass panel blocks
+  - Used on: Individual game pages (e.g., /genshin, /wuwa)
+  - Display: Large countdown blocks with glow effects
+  - Styling: Premium glass-morphism design with hover states
+</ResponseField>
+
+## Utility Functions
+
+### avanzarVersion
+
+Increment version numbers following the game's versioning scheme.
+
+**Location:** `src/utils/change-version.ts`
+
+```typescript
+function avanzarVersion(version: string): string
+```
+
+<ParamField path="version" type="string" required>
+  Current version in `major.minor` format
+  
+  **Examples:** `"3.8"`, `"4.0"`, `"6.4"`
+</ParamField>
+
+**Returns:** `string` - The next version number
+
+**Logic:**
+- If minor version is 8: Increments major version and resets minor to 0
+- Otherwise: Increments minor version by 1
+
+**Examples:**
+```typescript
+avanzarVersion("3.8")  // Returns "4.0"
+avanzarVersion("4.0")  // Returns "4.1"
+avanzarVersion("6.4")  // Returns "6.5"
+```
+
+## Constants
+
+### Maintenance Duration
+
+**Location:** `src/constants/constantes.ts`
+
+```typescript
+export const MANTENIMIENTO_DURACION_HORAS = 4;
+```
+
+<ResponseField name="MANTENIMIENTO_DURACION_HORAS" type="number">
+  Standard maintenance window duration in hours
+  
+  **Value:** `4`
+  
+  **Usage:** Used to calculate maintenance end time when displaying patch schedules
+</ResponseField>
+
+## Type Safety Benefits
+
+The Version Counter codebase uses TypeScript to provide:
+
+- **IntelliSense:** Auto-completion for props and types
+- **Type checking:** Catch errors at compile time
+- **Documentation:** Self-documenting code through type definitions
+- **Refactoring safety:** Rename and restructure with confidence
+
+## Best Practices
+
+When working with these types:
+
+1. **Always specify variant explicitly** when using `<Counter>` in new contexts
+2. **Use ISO 8601 format** for `fecha_inicio` to ensure timezone consistency
+3. **Pass complete GameCardProps** to maintain visual consistency
+4. **Leverage type inference** where possible to reduce boilerplate

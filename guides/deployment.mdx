@@ -1,0 +1,551 @@
+---
+title: Deployment Guide
+description: Learn how to build and deploy Version Counter to production
+icon: "rocket"
+---
+
+This guide covers building, deploying, and hosting Version Counter on various platforms. The application is built with Astro and optimized for static hosting.
+
+## Build Configuration
+
+Version Counter uses Astro's static site generation. The build configuration is defined in `astro.config.mjs`:
+
+```javascript astro.config.mjs
+import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@astrojs/react";
+
+export default defineConfig({
+  vite: {
+    plugins: [tailwindcss()],
+  },
+  site: "https://version-counter.netlify.app",
+  integrations: [react(), sitemap()],
+});
+```
+
+### Key Configuration Options
+
+<Steps>
+  <Step title="Site URL">
+    The `site` property defines your production URL:
+
+    ```javascript
+    site: "https://version-counter.netlify.app"
+    ```
+
+    This is used for:
+    - Generating absolute URLs in the sitemap
+    - Social media meta tags
+    - Canonical links
+
+    <Warning>
+      Update this to your actual domain before deploying to production.
+    </Warning>
+  </Step>
+
+  <Step title="Integrations">
+    The project uses two Astro integrations:
+
+    ```javascript
+    integrations: [react(), sitemap()]
+    ```
+
+    - **@astrojs/react**: Enables React components (used for the Counter component)
+    - **@astrojs/sitemap**: Automatically generates `sitemap.xml` for SEO
+  </Step>
+
+  <Step title="Vite Plugins">
+    Tailwind CSS is configured as a Vite plugin:
+
+    ```javascript
+    vite: {
+      plugins: [tailwindcss()],
+    }
+    ```
+
+    This enables Tailwind v4's new architecture with faster builds and smaller bundle sizes.
+  </Step>
+</Steps>
+
+## Building for Production
+
+<Steps>
+  <Step title="Install Dependencies">
+    Ensure all packages are installed:
+
+    ```bash
+    npm install
+    ```
+
+    The project uses these core dependencies:
+
+    ```json package.json
+    {
+      "dependencies": {
+        "@astrojs/react": "^4.4.2",
+        "@astrojs/sitemap": "^3.7.0",
+        "@tailwindcss/vite": "^4.1.18",
+        "astro": "^5.16.7",
+        "react": "^19.2.3",
+        "react-dom": "^19.2.3",
+        "tailwindcss": "^4.1.18"
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Run the Build">
+    Generate the production build:
+
+    ```bash
+    npm run build
+    ```
+
+    This command:
+    - Compiles all `.astro` files to HTML
+    - Bundles React components with Vite
+    - Processes Tailwind CSS
+    - Optimizes images and assets
+    - Generates the sitemap
+
+    Output is written to the `dist/` directory.
+  </Step>
+
+  <Step title="Preview Locally">
+    Test the production build before deploying:
+
+    ```bash
+    npm run preview
+    ```
+
+    This serves the `dist/` folder on `http://localhost:4321` (or another port if 4321 is in use).
+
+    <Tip>
+      Always preview the build locally to catch issues before deploying. Check that:
+      - All routes work correctly
+      - Images load properly
+      - JavaScript is functioning (countdown timers)
+      - The sitemap is generated at `/sitemap.xml`
+    </Tip>
+  </Step>
+</Steps>
+
+## Deployment Platforms
+
+Version Counter can be deployed to any static hosting platform. Here are the most popular options:
+
+### Netlify (Recommended)
+
+The project is currently deployed on Netlify. It offers:
+- Automatic deployments from Git
+- Free SSL certificates
+- Global CDN
+- Instant cache invalidation
+
+<Steps>
+  <Step title="Connect Repository">
+    1. Push your code to GitHub, GitLab, or Bitbucket
+    2. Log in to [Netlify](https://www.netlify.com/)
+    3. Click **Add new site** → **Import an existing project**
+    4. Select your Git provider and repository
+  </Step>
+
+  <Step title="Configure Build Settings">
+    Netlify will auto-detect Astro. Verify these settings:
+
+    - **Build command**: `npm run build`
+    - **Publish directory**: `dist`
+    - **Node version**: 18.x or higher (set in `netlify.toml` or environment variables)
+
+    Create a `netlify.toml` file in your project root:
+
+    ```toml netlify.toml
+    [build]
+      command = "npm run build"
+      publish = "dist"
+
+    [build.environment]
+      NODE_VERSION = "20"
+
+    [[redirects]]
+      from = "/*"
+      to = "/index.html"
+      status = 200
+    ```
+
+    <Note>
+      The redirect rule is necessary for client-side routing, though Version Counter uses server-rendered routes.
+    </Note>
+  </Step>
+
+  <Step title="Deploy">
+    Click **Deploy site**. Netlify will:
+    - Clone your repository
+    - Run `npm install`
+    - Execute `npm run build`
+    - Deploy the `dist/` folder to the CDN
+
+    Your site will be live at a `*.netlify.app` subdomain.
+  </Step>
+
+  <Step title="Custom Domain (Optional)">
+    To use a custom domain:
+    1. Go to **Site settings** → **Domain management**
+    2. Click **Add custom domain**
+    3. Follow the DNS configuration instructions
+    4. SSL will be automatically provisioned
+  </Step>
+</Steps>
+
+### Vercel
+
+Vercel provides excellent Astro support with zero configuration:
+
+<Steps>
+  <Step title="Install Vercel CLI">
+    ```bash
+    npm install -g vercel
+    ```
+  </Step>
+
+  <Step title="Deploy">
+    From your project directory:
+
+    ```bash
+    vercel
+    ```
+
+    Follow the prompts to link your project and deploy.
+  </Step>
+
+  <Step title="Production Deployment">
+    For production deploys:
+
+    ```bash
+    vercel --prod
+    ```
+
+    Or connect your Git repository in the Vercel dashboard for automatic deployments.
+  </Step>
+</Steps>
+
+<Accordion title="Vercel Configuration">
+  Create a `vercel.json` for advanced settings:
+
+  ```json vercel.json
+  {
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "framework": "astro"
+  }
+  ```
+</Accordion>
+
+### Cloudflare Pages
+
+Cloudflare Pages offers excellent performance with their global edge network:
+
+<Steps>
+  <Step title="Connect Repository">
+    1. Log in to [Cloudflare Dashboard](https://dash.cloudflare.com/)
+    2. Go to **Workers & Pages** → **Create application** → **Pages**
+    3. Connect your Git repository
+  </Step>
+
+  <Step title="Configure Build">
+    Set these build settings:
+
+    - **Build command**: `npm run build`
+    - **Build output directory**: `dist`
+    - **Root directory**: `/` (or your monorepo path)
+  </Step>
+
+  <Step title="Environment Variables">
+    Set Node version:
+
+    - **Variable name**: `NODE_VERSION`
+    - **Value**: `20`
+  </Step>
+</Steps>
+
+### GitHub Pages
+
+For free hosting on GitHub:
+
+<Steps>
+  <Step title="Update astro.config.mjs">
+    Set the correct base path:
+
+    ```javascript astro.config.mjs
+    export default defineConfig({
+      site: "https://username.github.io",
+      base: "/repository-name",  // If using project pages
+      // ... other config
+    });
+    ```
+  </Step>
+
+  <Step title="Create GitHub Action">
+    Add `.github/workflows/deploy.yml`:
+
+    ```yaml .github/workflows/deploy.yml
+    name: Deploy to GitHub Pages
+
+    on:
+      push:
+        branches: [main]
+      workflow_dispatch:
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+
+          - name: Setup Node
+            uses: actions/setup-node@v4
+            with:
+              node-version: 20
+
+          - name: Install dependencies
+            run: npm ci
+
+          - name: Build
+            run: npm run build
+
+          - name: Upload artifact
+            uses: actions/upload-pages-artifact@v3
+            with:
+              path: ./dist
+
+      deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        environment:
+          name: github-pages
+          url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+          - name: Deploy to GitHub Pages
+            id: deployment
+            uses: actions/deploy-pages@v4
+    ```
+  </Step>
+
+  <Step title="Enable GitHub Pages">
+    In your repository settings:
+    1. Go to **Settings** → **Pages**
+    2. Set **Source** to "GitHub Actions"
+    3. Push to trigger the workflow
+  </Step>
+</Steps>
+
+## Environment Variables
+
+If you need environment variables (for API keys, feature flags, etc.):
+
+<Steps>
+  <Step title="Create .env file">
+    ```bash .env
+    PUBLIC_API_URL=https://api.example.com
+    SECRET_KEY=your-secret-here
+    ```
+
+    <Warning>
+      Only variables prefixed with `PUBLIC_` are exposed to client-side code. Never prefix secrets with `PUBLIC_`.
+    </Warning>
+  </Step>
+
+  <Step title="Access in Astro">
+    ```astro
+    ---
+    const apiUrl = import.meta.env.PUBLIC_API_URL;
+    const secretKey = import.meta.env.SECRET_KEY;  // Server-side only
+    ---
+    ```
+  </Step>
+
+  <Step title="Set in Hosting Platform">
+    Add environment variables in your platform's dashboard:
+    - **Netlify**: Site settings → Environment variables
+    - **Vercel**: Project settings → Environment Variables
+    - **Cloudflare Pages**: Settings → Environment variables
+  </Step>
+</Steps>
+
+## Performance Optimization
+
+<Accordion title="Image Optimization">
+  Version Counter uses external CDN images. To optimize:
+
+  - Use modern formats (WebP, AVIF) when possible
+  - Compress images before uploading to CDN
+  - Consider lazy loading for below-the-fold images
+  - Use responsive images with `srcset` for different screen sizes
+
+  For local images, use Astro's built-in `<Image>` component:
+
+  ```astro
+  ---
+  import { Image } from 'astro:assets';
+  import myImage from '../assets/image.png';
+  ---
+  <Image src={myImage} alt="Description" />
+  ```
+</Accordion>
+
+<Accordion title="Code Splitting">
+  Astro automatically splits code by route. For React components:
+
+  ```astro
+  <Counter client:load />      <!-- Loads immediately -->
+  <Counter client:visible />   <!-- Loads when visible -->
+  <Counter client:idle />      <!-- Loads when browser is idle -->
+  ```
+
+  Use `client:visible` or `client:idle` for non-critical components.
+</Accordion>
+
+<Accordion title="Caching Strategy">
+  Configure cache headers in your hosting platform:
+
+  **Netlify** (`netlify.toml`):
+  ```toml
+  [[headers]]
+    for = "/assets/*"
+    [headers.values]
+      Cache-Control = "public, max-age=31536000, immutable"
+
+  [[headers]]
+    for = "/*.html"
+    [headers.values]
+      Cache-Control = "public, max-age=0, must-revalidate"
+  ```
+
+  **Vercel** (`vercel.json`):
+  ```json
+  {
+    "headers": [
+      {
+        "source": "/assets/(.*)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      }
+    ]
+  }
+  ```
+</Accordion>
+
+<Accordion title="Sitemap and SEO">
+  The `@astrojs/sitemap` integration automatically generates a sitemap. Ensure:
+
+  - The `site` URL in `astro.config.mjs` is correct
+  - All pages have proper meta tags
+  - Submit the sitemap to Google Search Console
+
+  Verify the sitemap at: `https://your-domain.com/sitemap.xml`
+</Accordion>
+
+## Monitoring and Analytics
+
+Add analytics to track usage:
+
+### Google Analytics
+
+```astro src/layouts/Layout.astro
+<head>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+</head>
+```
+
+### Plausible Analytics (Privacy-Friendly)
+
+```astro src/layouts/Layout.astro
+<head>
+  <script defer data-domain="your-domain.com" src="https://plausible.io/js/script.js"></script>
+</head>
+```
+
+## Continuous Deployment
+
+Most platforms support automatic deployments:
+
+1. **Push to main branch** → Automatic production deploy
+2. **Push to other branches** → Deploy preview (Netlify/Vercel)
+3. **Pull requests** → Deploy preview for testing
+
+Configure branch deploy settings in your platform's dashboard.
+
+## Troubleshooting
+
+<Accordion title="Build Failures">
+  **Common issues:**
+
+  - **Node version mismatch**: Ensure Node 18+ is specified
+  - **Missing dependencies**: Check that all packages are in `dependencies` (not `devDependencies`)
+  - **TypeScript errors**: Run `npm run build` locally to catch issues before deploying
+  - **Environment variables**: Verify all required env vars are set in the platform
+</Accordion>
+
+<Accordion title="Runtime Errors">
+  **JavaScript not working:**
+
+  - Check browser console for errors
+  - Verify React components use correct client directives
+  - Ensure date strings are in valid ISO 8601 format
+
+  **Countdown not updating:**
+
+  - Verify `fecha_inicio` and `duracion_dias` in `games.json`
+  - Check that Counter component has `client:load` directive
+  - Test in preview mode before deploying
+</Accordion>
+
+<Accordion title="Performance Issues">
+  - Use Lighthouse to identify bottlenecks
+  - Check image sizes and formats
+  - Review bundle size with `npm run build -- --verbose`
+  - Minimize the use of `backdrop-filter` (GPU-intensive)
+</Accordion>
+
+## Post-Deployment Checklist
+
+- [ ] Verify all pages load correctly
+- [ ] Test countdown timers are functioning
+- [ ] Check mobile responsiveness
+- [ ] Validate sitemap at `/sitemap.xml`
+- [ ] Test all game detail pages
+- [ ] Verify custom domain (if applicable)
+- [ ] Check SSL certificate is active
+- [ ] Submit sitemap to search engines
+- [ ] Set up analytics and monitoring
+- [ ] Test social media previews (Open Graph)
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Adding Games" icon="gamepad" href="/guides/adding-games">
+    Learn how to add new games to the dashboard
+  </Card>
+  <Card title="Customizing Themes" icon="palette" href="/guides/customizing-themes">
+    Customize game themes and colors
+  </Card>
+</CardGroup>
