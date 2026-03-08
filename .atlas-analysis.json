@@ -1,0 +1,75 @@
+{
+  "projectType": "frontend",
+  "projectName": "Version Counter",
+  "projectDescription": "A web application that displays countdown timers for upcoming version updates of popular gacha games.",
+  "theme": "palm",
+  "primaryColor": "#4ade80",
+  "lightColor": "#22d3ee",
+  "darkColor": "#818cf8",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/adding-games",
+              "guides/customizing-themes",
+              "guides/deployment"
+            ]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "components/counter",
+              "components/game-card",
+              "components/layout"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Data Structures",
+            "pages": [
+              "api/game-data",
+              "api/types"
+            ]
+          },
+          {
+            "group": "Utilities",
+            "pages": [
+              "api/version-utils",
+              "api/constants"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Real-time countdown timers for game version updates",
+    "Support for multiple gacha games (Genshin Impact, Honkai Star Rail, Wuthering Waves, Zenless Zone Zero)",
+    "Custom color themes per game",
+    "Responsive design with dark mode",
+    "Automatic version tracking and countdown calculation"
+  ],
+  "publicApiSurface": [
+    "Counter component (React)",
+    "GameCard component (Astro)",
+    "Layout component (Astro)",
+    "avanzarVersion() utility function",
+    "games.json data structure",
+    "MANTENIMIENTO_DURACION_HORAS constant"
+  ]
+}
